@@ -1,31 +1,31 @@
 /* ══════════════════════════════════════════════════════════════════
    Safwa Bank Policy Chatbot — Premium Design System
-   Dark Navy + Gold + Glassmorphism
+   Dark Navy + Safwa Green + Glassmorphism
    ══════════════════════════════════════════════════════════════════ */
 
 /* Removed external font import for complete offline support */
 
 /* ── Design Tokens ────────────────────────────────────────────── */
 :root {
-  /* Colors */
-  --bg-primary:    #07101f;
-  --bg-secondary:  #0b1829;
-  --bg-tertiary:   #0f2038;
-  --gold:          #c9a227;
-  --gold-light:    #e8c547;
-  --gold-dark:     #8b6914;
-  --gold-glow:     rgba(201, 162, 39, 0.18);
-  --teal:          #0a6b8a;
-  --teal-light:    #0e8fae;
+  /* Colors — Safwa Logo Greens */
+  --bg-primary:    #06110d;
+  --bg-secondary:  #091a11;
+  --bg-tertiary:   #0d2318;
+  --gold:          #3ab54a;
+  --gold-light:    #5dd96e;
+  --gold-dark:     #1a6e2e;
+  --gold-glow:     rgba(58, 181, 74, 0.18);
+  --teal:          #1a6e2e;
+  --teal-light:    #27943f;
 
-  --text-primary:   #f0f4ff;
-  --text-secondary: #8fa3bf;
-  --text-muted:     #4a6180;
+  --text-primary:   #f0f4f1;
+  --text-secondary: #8fa39a;
+  --text-muted:     #4a6155;
   --border:         rgba(255,255,255,0.08);
-  --border-gold:    rgba(201,162,39,0.3);
-  --glass-bg:       rgba(11, 24, 41, 0.75);
-  --glass-bg-light: rgba(15, 32, 56, 0.6);
-  --shadow-gold:    0 0 40px rgba(201,162,39,0.12);
+  --border-gold:    rgba(58,181,74,0.3);
+  --glass-bg:       rgba(6, 17, 13, 0.80);
+  --glass-bg-light: rgba(9, 26, 17, 0.65);
+  --shadow-gold:    0 0 40px rgba(58,181,74,0.10);
   --shadow-card:    0 8px 32px rgba(0,0,0,0.4);
 
   --success:  #10b981;
