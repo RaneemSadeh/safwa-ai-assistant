@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="مساعد صفوة الذكي — بنك الصفوة | Safwa Bank AI Policy Assistant for employees" />
+  <title>مساعد صفوة | Safwa Assistant</title>
+
+  <script src="/static/js/lucide.min.js"></script>
+
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+
+<body>
+
+<div id="view-login" class="view auth-view">
+  <div class="auth-bg">
+    <div class="auth-bg-orb orb-1"></div>
+    <div class="auth-bg-orb orb-2"></div>
+    <div class="auth-bg-orb orb-3"></div>
+  </div>
+
+  <div class="auth-card glass-card">
+    <div class="auth-logo">
+      <div class="logo-icon">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <rect width="36" height="36" rx="10" fill="url(#logoGrad)"/>
+          <path d="M8 18C8 12.477 12.477 8 18 8s10 4.477 10 10-4.477 10-10 10S8 23.523 8 18z" fill="none" stroke="white" stroke-width="1.5"/>
+          <path d="M13 18l3.5 3.5L23 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="logoGrad" x1="0" y1="0" x2="36" y2="36">
+              <stop offset="0%" stop-color="#c9a227"/>
+              <stop offset="100%" stop-color="#8b6914"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-ar">بنك الصفوة</span>
+        <span class="logo-en">Safwa Bank</span>
+      </div>
+    </div>
+
+    <h1 class="auth-title">
+      <span class="ar">مرحباً بك</span>
+      <span class="en">Welcome Back</span>
+    </h1>
+    <p class="auth-subtitle">
+      <span class="ar">أدخل رقم موظفك للوصول إلى المساعد الذكي</span>
+      <span class="en">Enter your Employee ID to access Safwa Assistant</span>
+    </p>
+
+    <div id="login-error" class="alert alert-error hidden"></div>
+
+    <form id="login-form" class="auth-form">
+      <div class="form-group">
+        <label for="login-eid">
+          <span class="ar">رقم الموظف</span>
+          <span class="en">Employee ID</span>
+        </label>
+        <div class="input-wrapper">
+          <i data-lucide="user" class="input-icon"></i>
+          <input
+            id="login-eid"
+            type="text"
+            placeholder="e.g. EMP001"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+        <i data-lucide="log-in"></i>
+        <span class="ar">دخول</span>
+        <span class="en">Sign In</span>
+      </button>
+    </form>
+
+    <div class="auth-divider">
+      <span><span class="ar">موظف جديد؟</span><span class="en">New employee?</span></span>
+    </div>
+
+    <button class="btn btn-outline btn-full" onclick="App.showView('register')">
+      <i data-lucide="user-plus"></i>
+      <span class="ar">إنشاء حساب جديد</span>
+      <span class="en">Create Account</span>
+    </button>
+
+    <div class="auth-footer">
+      <p><span class="ar">نظام داخلي | إدارة المخاطر والأمن السيبراني</span></p>
+      <p><span class="en">Internal System | Risk Management & Cybersecurity</span></p>
+    </div>
+  </div>
+</div>
+
+
+<div id="view-register" class="view auth-view hidden">
+  <div class="auth-bg">
+    <div class="auth-bg-orb orb-1"></div>
+    <div class="auth-bg-orb orb-2"></div>
+    <div class="auth-bg-orb orb-3"></div>
+  </div>
+
+  <div class="auth-card glass-card register-card">
+    <div class="auth-logo">
+      <div class="logo-icon">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <rect width="36" height="36" rx="10" fill="url(#logoGrad2)"/>
+          <path d="M8 18C8 12.477 12.477 8 18 8s10 4.477 10 10-4.477 10-10 10S8 23.523 8 18z" fill="none" stroke="white" stroke-width="1.5"/>
+          <path d="M13 18l3.5 3.5L23 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="logoGrad2" x1="0" y1="0" x2="36" y2="36">
+              <stop offset="0%" stop-color="#c9a227"/>
+              <stop offset="100%" stop-color="#8b6914"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-ar">بنك الصفوة</span>
+        <span class="logo-en">Safwa Bank</span>
+      </div>
+    </div>
+
+    <h1 class="auth-title">
+      <span class="ar">إنشاء حساب</span>
+      <span class="en">Create Account</span>
+    </h1>
+    <p class="auth-subtitle">
+      <span class="ar">سجّل معلوماتك حتى يتكيّف المساعد مع دورك الوظيفي</span>
+      <span class="en">Register your profile so the assistant can tailor answers to your role</span>
+    </p>
+
+    <div id="register-error" class="alert alert-error hidden"></div>
+
+    <form id="register-form" class="auth-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="reg-name">
+            <span class="ar">الاسم الكامل</span>
+            <span class="en">Full Name</span>
+          </label>
+          <div class="input-wrapper">
+            <i data-lucide="user" class="input-icon"></i>
+            <input id="reg-name" type="text" placeholder="e.g. Ahmad Al-Rashid" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-eid">
+            <span class="ar">رقم الموظف</span>
+            <span class="en">Employee ID</span>
+          </label>
+          <div class="input-wrapper">
+            <i data-lucide="badge" class="input-icon"></i>
+            <input id="reg-eid" type="text" placeholder="e.g. EMP001" required spellcheck="false" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-dept">
+          <span class="ar">القسم / الإدارة</span>
+          <span class="en">Department</span>
+        </label>
+        <div class="input-wrapper select-wrapper">
+          <i data-lucide="building-2" class="input-icon"></i>
+          <select id="reg-dept" required>
+            <option value="">— اختر القسم / Select Department —</option>
+            {% for dept in departments %}
+            <option value="{{ dept }}">{{ dept }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <span class="ar">الدور الوظيفي</span>
+          <span class="en">Job Role</span>
+        </label>
+        <div class="role-cards" id="role-selector">
+          <div class="role-card" data-role="it">
+            <i data-lucide="monitor"></i>
+            <span class="role-en">IT / Technical</span>
+            <span class="role-ar">تقنية المعلومات</span>
+          </div>
+          <div class="role-card" data-role="business">
+            <i data-lucide="briefcase"></i>
+            <span class="role-en">Business</span>
+            <span class="role-ar">الأعمال</span>
+          </div>
+          <div class="role-card" data-role="management">
+            <i data-lucide="landmark"></i>
+            <span class="role-en">Management</span>
+            <span class="role-ar">الإدارة</span>
+          </div>
+          <div class="role-card" data-role="hr">
+            <i data-lucide="users"></i>
+            <span class="role-en">HR</span>
+            <span class="role-ar">الموارد البشرية</span>
+          </div>
+          <div class="role-card" data-role="legal">
+            <i data-lucide="scale"></i>
+            <span class="role-en">Legal</span>
+            <span class="role-ar">القانوني</span>
+          </div>
+          <div class="role-card" data-role="general">
+            <i data-lucide="user-circle"></i>
+            <span class="role-en">General</span>
+            <span class="role-ar">عام</span>
+          </div>
+        </div>
+        <input type="hidden" id="reg-role" required />
+      </div>
+
+      <div class="form-group">
+        <label for="reg-title">
+          <span class="ar">المسمى الوظيفي (اختياري)</span>
+          <span class="en">Job Title (optional)</span>
+        </label>
+        <div class="input-wrapper">
+          <i data-lucide="pen-line" class="input-icon"></i>
+          <input id="reg-title" type="text" placeholder="e.g. Senior IT Analyst" />
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" id="register-btn">
+        <i data-lucide="user-check"></i>
+        <span class="ar">إنشاء الحساب</span>
+        <span class="en">Create Account</span>
+      </button>
+    </form>
+
+    <button class="btn btn-ghost btn-full" onclick="App.showView('login')">
+      <i data-lucide="arrow-right"></i>
+      <span class="ar">العودة لتسجيل الدخول</span>
+      <span class="en">Back to Login</span>
+    </button>
+  </div>
+</div>
+
+
+<div id="view-chat" class="view chat-view hidden">
+
+  <aside class="sidebar glass-sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon logo-icon-sm">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+            <rect width="36" height="36" rx="10" fill="url(#sLogoGrad)"/>
+            <path d="M8 18C8 12.477 12.477 8 18 8s10 4.477 10 10-4.477 10-10 10S8 23.523 8 18z" fill="none" stroke="white" stroke-width="1.5"/>
+            <path d="M13 18l3.5 3.5L23 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="sLogoGrad" x1="0" y1="0" x2="36" y2="36">
+                <stop offset="0%" stop-color="#c9a227"/>
+                <stop offset="100%" stop-color="#8b6914"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <div class="sidebar-bank-name">بنك الصفوة</div>
+          <div class="sidebar-system-name">Policy Assistant</div>
+        </div>
+      </div>
+      <button class="btn-icon sidebar-toggle-btn" id="sidebar-close-btn" title="Close sidebar">
+        <i data-lucide="panel-left-close"></i>
+      </button>
+    </div>
+
+    <div class="user-profile-card" id="user-profile-card">
+      <div class="user-avatar" id="user-avatar">A</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name-display">—</div>
+        <div class="user-role-badge" id="user-role-display">—</div>
+        <div class="user-dept" id="user-dept-display">—</div>
+      </div>
+    </div>
+
+    <button class="btn btn-gold btn-full new-chat-btn" id="new-chat-btn">
+      <i data-lucide="plus"></i>
+      <span class="ar">محادثة جديدة</span>
+      <span class="en">New Chat</span>
+    </button>
+
+    <div class="conversations-section">
+      <div class="conversations-label">
+        <i data-lucide="message-square"></i>
+        <span class="ar">المحادثات السابقة</span>
+        <span class="en">History</span>
+      </div>
+      <div class="conversations-list" id="conversations-list">
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="system-status" id="system-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text" class="ar">جاري التحقق…</span>
+      </div>
+      <button class="btn-icon logout-btn" id="logout-btn" title="Logout / تسجيل الخروج">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <main class="chat-main" id="chat-main">
+    <header class="chat-header glass-card">
+      <div class="chat-header-left">
+        <button class="btn-icon" id="sidebar-open-btn" title="Open sidebar">
+          <i data-lucide="panel-left-open"></i>
+        </button>
+        <div class="chat-header-title">
+          <span class="ar">مساعد صفوة للسياسات</span>
+          <span class="en">Safwa Policy Assistant</span>
+        </div>
+      </div>
+      <div class="chat-header-right">
+        <div class="role-indicator" id="role-indicator">
+          <i data-lucide="shield-check"></i>
+          <span id="header-role">—</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="messages-area" id="messages-area">
+      <div class="welcome-screen" id="welcome-screen">
+        <div class="welcome-icon">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+            <rect width="64" height="64" rx="18" fill="url(#wGrad)"/>
+            <path d="M16 32C16 23.163 23.163 16 32 16s16 7.163 16 16-7.163 16-16 16-16-7.163-16-16z" fill="none" stroke="white" stroke-width="2"/>
+            <path d="M24 32l6 6L40 24" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="wGrad" x1="0" y1="0" x2="64" y2="64">
+                <stop offset="0%" stop-color="#c9a227"/>
+                <stop offset="100%" stop-color="#6b4c10"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <h2 class="welcome-title">
+          <span class="ar">كيف يمكنني مساعدتك اليوم؟</span>
+          <span class="en">How can I help you today?</span>
+        </h2>
+        <p class="welcome-subtitle">
+          <span class="ar">اطرح أي سؤال حول سياسات وأنظمة بنك الصفوة</span>
+          <span class="en">Ask any question about Safwa Bank's policies and regulations</span>
+        </p>
+        <div class="suggestion-chips" id="suggestion-chips">
+          <button class="chip" onclick="Chat.useSuggestion(this)">
+            ما هي الإجراءات الواجب اتباعها عند إرسال بيانات إلى جهة خارجية؟
+          </button>
+          <button class="chip" onclick="Chat.useSuggestion(this)">
+            What are the data breach reporting requirements?
+          </button>
+          <button class="chip" onclick="Chat.useSuggestion(this)">
+            ما هي حقوق الموظف فيما يتعلق ببياناته الشخصية؟
+          </button>
+          <button class="chip" onclick="Chat.useSuggestion(this)">
+            كيف أقوم بإجراء تقييم أثر حماية البيانات (DPIA)؟
+          </button>
+        </div>
+      </div>
+
+      <div id="messages-container"></div>
+
+      <div id="typing-indicator" class="typing-indicator hidden">
+        <div class="typing-bubble">
+          <div class="assistant-avatar">
+            <i data-lucide="bot"></i>
+          </div>
+          <div class="typing-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="typing-label">
+            <span class="ar">مساعد صفوة يفكر…</span>
+            <span class="en">Safwa Assistant is thinking…</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area glass-card">
+      <div class="input-container">
+        <textarea
+          id="message-input"
+          placeholder="اكتب سؤالك هنا… / Ask your question here…"
+          rows="1"
+          maxlength="2000"
+        ></textarea>
+        <button class="send-btn" id="send-btn" disabled>
+          <i data-lucide="send"></i>
+        </button>
+      </div>
+      <div class="input-footer">
+        <span class="char-count" id="char-count">0 / 2000</span>
+        <span class="input-disclaimer">
+          <span class="ar">يُجيب المساعد بناءً على الوثائق الرسمية لبنك الصفوة فقط</span>
+          <span class="en">Assistant answers based solely on official Safwa Bank policy documents</span>
+        </span>
+      </div>
+    </div>
+  </main>
+</div>
+
+
+<div id="admin-modal" class="modal-overlay hidden">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <h3>
+        <i data-lucide="settings"></i>
+        <span class="ar">لوحة المشرف / Admin Panel</span>
+      </h3>
+      <button class="btn-icon" onclick="Admin.closeModal()">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="admin-status-card" id="admin-status-card">
+        <div class="loading-spinner"></div>
+        <span>Checking status…</span>
+      </div>
+
+      <div class="form-group">
+        <label>Admin Password / كلمة مرور المشرف</label>
+        <div class="input-wrapper">
+          <i data-lucide="lock" class="input-icon"></i>
+          <input type="password" id="admin-password" placeholder="Admin password" />
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full" id="ingest-btn" onclick="Admin.triggerIngest()">
+        <i data-lucide="database"></i>
+        <span>Run Document Ingestion / تشغيل استيعاب الوثائق</span>
+      </button>
+
+      <div id="admin-feedback" class="alert hidden" style="margin-top:1rem;"></div>
+
+      <div id="ingest-progress-wrap" class="hidden" style="margin-top:1rem;">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progress-bar"></div>
+        </div>
+        <p id="progress-label" style="font-size:.85rem;color:var(--text-secondary);margin-top:.4rem;"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+<script>
+  const SERVER_USER = {{ (user | tojson) if user else 'null' }};
+</script>
+<script>
+  lucide.createIcons();
+  App.init(SERVER_USER);
+</script>
+</body>
+</html>

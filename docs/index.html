@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safwa AI Assistant — RAG Policy Chatbot</title>
+  <meta name="description" content="A fully local, offline RAG-powered chatbot for Safwa Bank employees providing accurate, role-aware answers to policy questions with full source citations." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0a0f1e;
+      --navy-2:    #0d1428;
+      --navy-3:    #111b38;
+      --navy-card: #0f1830;
+      --gold:      #c9a227;
+      --gold-light:#e2b93b;
+      --gold-dim:  rgba(201,162,39,0.15);
+      --blue:      #2563eb;
+      --blue-glow: rgba(37,99,235,0.25);
+      --text:      #e8edf5;
+      --muted:     #7a889e;
+      --border:    rgba(201,162,39,0.18);
+      --glass:     rgba(255,255,255,0.04);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', 'Tajawal', sans-serif;
+      background: var(--navy);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ── Animated background ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(37,99,235,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 85% 80%, rgba(201,162,39,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .noise {
+      position: fixed; inset: 0; z-index: 0; opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      padding: 18px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(10,15,30,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    .nav-logo-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold), #a07810);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; color: var(--navy);
+    }
+
+    .nav-logo-text { font-size: 17px; font-weight: 700; color: var(--text); }
+    .nav-logo-sub  { font-size: 11px; color: var(--gold); letter-spacing: 0.08em; }
+
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 14px;
+      font-weight: 500; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    .nav-cta {
+      padding: 9px 22px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--gold), #a07810);
+      color: var(--navy); font-weight: 700; font-size: 13px;
+      text-decoration: none; transition: opacity 0.2s, transform 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 120px 24px 80px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 100px;
+      background: var(--gold-dim); border: 1px solid var(--border);
+      font-size: 12px; font-weight: 600; color: var(--gold);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-badge span { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: pulse 2s infinite; }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.5rem);
+      font-weight: 800; line-height: 1.1;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 0%, var(--gold-light) 50%, #fff 100%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: fadeUp 0.6s 0.1s ease both;
+      margin-bottom: 12px;
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--muted); max-width: 620px; margin: 0 auto 48px;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    .btn-primary {
+      padding: 14px 32px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold), #a07810);
+      color: var(--navy); font-weight: 700; font-size: 15px;
+      text-decoration: none; display: flex; align-items: center; gap: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 24px rgba(201,162,39,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(201,162,39,0.45); }
+
+    .btn-secondary {
+      padding: 14px 32px; border-radius: 10px;
+      background: var(--glass); border: 1px solid var(--border);
+      color: var(--text); font-weight: 600; font-size: 15px;
+      text-decoration: none; display: flex; align-items: center; gap: 8px;
+      backdrop-filter: blur(8px); transition: background 0.2s, transform 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.07); transform: translateY(-2px); }
+
+    /* ── DEMO WINDOW ── */
+    .demo-wrapper {
+      position: relative; z-index: 1;
+      padding: 0 24px 80px; max-width: 960px; margin: 0 auto;
+      animation: fadeUp 0.6s 0.4s ease both;
+    }
+
+    .demo-window {
+      border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    .demo-titlebar {
+      background: var(--navy-3); padding: 14px 20px;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #ffbd2e; }
+    .dot-g { background: #28ca42; }
+
+    .demo-url {
+      flex: 1; text-align: center;
+      background: rgba(255,255,255,0.05); border-radius: 6px;
+      padding: 5px 14px; font-size: 12px; color: var(--muted);
+    }
+
+    .demo-body {
+      display: grid; grid-template-columns: 280px 1fr;
+      background: var(--navy-card); min-height: 420px;
+    }
+
+    .demo-sidebar {
+      background: rgba(255,255,255,0.03);
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+    }
+
+    .demo-sidebar-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 16px;
+    }
+
+    .demo-doc-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px;
+      font-size: 12px; color: var(--muted); margin-bottom: 4px;
+      transition: background 0.2s;
+    }
+    .demo-doc-item:hover { background: rgba(255,255,255,0.04); }
+    .demo-doc-item.active { background: var(--gold-dim); color: var(--gold); }
+    .doc-icon { font-size: 14px; }
+
+    .demo-chat {
+      display: flex; flex-direction: column; padding: 24px;
+    }
+
+    .chat-msg {
+      margin-bottom: 16px; max-width: 85%;
+    }
+    .chat-msg.bot { align-self: flex-start; }
+    .chat-msg.user { align-self: flex-end; }
+
+    .chat-bubble {
+      padding: 12px 16px; border-radius: 12px; font-size: 13px; line-height: 1.6;
+    }
+    .chat-msg.bot .chat-bubble {
+      background: var(--navy-3); border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+    .chat-msg.user .chat-bubble {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      border-bottom-right-radius: 4px; color: #fff;
+    }
+
+    .chat-source {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 8px; font-size: 10px; color: var(--gold);
+      background: var(--gold-dim); padding: 3px 10px; border-radius: 100px;
+    }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      position: relative; z-index: 1;
+      max-width: 1100px; margin: 0 auto 100px;
+      padding: 0 24px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      background: var(--border); border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .stat-item {
+      background: var(--navy-card); padding: 32px 24px; text-align: center;
+    }
+    .stat-num {
+      font-size: 2.5rem; font-weight: 800; color: var(--gold);
+      letter-spacing: -0.02em;
+    }
+    .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* ── SECTIONS ── */
+    section { position: relative; z-index: 1; }
+
+    .section-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 24px 100px;
+    }
+
+    .section-tag {
+      display: inline-block; font-size: 12px; font-weight: 700;
+      color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800;
+      letter-spacing: -0.02em; margin-bottom: 16px;
+    }
+
+    .section-desc { font-size: 16px; color: var(--muted); max-width: 560px; margin-bottom: 56px; }
+
+    /* ── FEATURES GRID ── */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--navy-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      position: relative; overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201,162,39,0.06), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(201,162,39,0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+    }
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: var(--gold-dim); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 20px;
+    }
+
+    .feature-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .feature-desc  { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* ── TECH STACK ── */
+    .tech-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;
+    }
+
+    .tech-card {
+      background: var(--navy-card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px;
+      display: flex; align-items: center; gap: 14px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .tech-card:hover { border-color: rgba(201,162,39,0.35); transform: translateY(-2px); }
+    .tech-icon { font-size: 28px; }
+    .tech-name  { font-size: 14px; font-weight: 700; }
+    .tech-role  { font-size: 11px; color: var(--muted); }
+
+    /* ── SETUP STEPS ── */
+    .steps-list { display: flex; flex-direction: column; gap: 24px; }
+
+    .step {
+      display: flex; gap: 20px; align-items: flex-start;
+    }
+
+    .step-num {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      background: var(--gold-dim); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 15px; color: var(--gold);
+    }
+
+    .step-body { flex: 1; }
+    .step-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .step-desc  { font-size: 14px; color: var(--muted); margin-bottom: 10px; }
+
+    .code-block {
+      background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 16px;
+      font-family: 'Courier New', monospace; font-size: 13px;
+      color: #7dd3fc; overflow-x: auto;
+    }
+
+    /* ── SECURITY SECTION ── */
+    .security-box {
+      background: var(--navy-card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 48px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+    }
+
+    .security-diagram {
+      background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px; font-family: monospace;
+      font-size: 12px; color: var(--muted); line-height: 1.8;
+    }
+
+    .diagram-highlight { color: var(--gold); font-weight: 700; }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+    }
+
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    }
+
+    .footer-copy { font-size: 13px; color: var(--muted); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--gold); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .demo-body { grid-template-columns: 1fr; }
+      .demo-sidebar { display: none; }
+      .security-box { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="noise"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">S</div>
+    <div>
+      <div class="nav-logo-text">Safwa AI</div>
+      <div class="nav-logo-sub">RAG Policy Assistant</div>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#tech">Tech Stack</a></li>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#security">Security</a></li>
+  </ul>
+  <a href="https://github.com/RaneemSadeh/safwa-ai-assistant" target="_blank" class="nav-cta">
+    ⭐ View on GitHub
+  </a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-badge"><span></span> 100% Local & Offline — No Data Leaves the Machine</div>
+    <h1>Safwa Bank<br/>AI Policy Assistant</h1>
+    <p class="hero-sub">
+      A fully local RAG-powered chatbot that gives Safwa Bank employees accurate, role-aware answers to policy and compliance questions — with full document citations.
+    </p>
+    <div class="hero-actions">
+      <a href="https://github.com/RaneemSadeh/safwa-ai-assistant" target="_blank" class="btn-primary">
+        🐙 GitHub Repository
+      </a>
+      <a href="#setup" class="btn-secondary">
+        📖 How to Run
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO WINDOW -->
+<div class="demo-wrapper">
+  <div class="demo-window">
+    <div class="demo-titlebar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <div class="demo-url">localhost:5000 — مساعد صفوة</div>
+    </div>
+    <div class="demo-body">
+      <div class="demo-sidebar">
+        <div class="demo-sidebar-title">📂 Policy Documents</div>
+        <div class="demo-doc-item active"><span class="doc-icon">📄</span> قانون حماية البيانات</div>
+        <div class="demo-doc-item"><span class="doc-icon">📄</span> الدستور</div>
+        <div class="demo-doc-item"><span class="doc-icon">📄</span> سياسة الخصوصية</div>
+        <div class="demo-doc-item"><span class="doc-icon">📄</span> الأمن السيبراني</div>
+        <div class="demo-doc-item"><span class="doc-icon">📄</span> الجرائم الإلكترونية</div>
+        <div class="demo-doc-item"><span class="doc-icon">📄</span> قرار البنك المركزي</div>
+        <div class="demo-doc-item"><span class="doc-icon">📄</span> + 22 more documents…</div>
+      </div>
+      <div class="demo-chat">
+        <div class="chat-msg user">
+          <div class="chat-bubble">
+            ما هي الإجراءات الواجب اتباعها عند حدوث اختراق للبيانات؟
+          </div>
+        </div>
+        <div class="chat-msg bot">
+          <div class="chat-bubble">
+            وفقاً لـ <strong>قانون حماية البيانات الشخصية رقم 24 لسنة 2023</strong>، يجب على الجهة الإبلاغ عن الاختراق خلال <strong>72 ساعة</strong> من اكتشافه. تشمل الخطوات:
+            <br/><br/>
+            1️⃣ توثيق الحادث وتحديد نطاقه<br/>
+            2️⃣ إخطار مجلس حماية البيانات فوراً<br/>
+            3️⃣ إعلام الأشخاص المتضررين إن كان الخطر جسيماً
+          </div>
+          <div>
+            <span class="chat-source">📄 قانون حماية البيانات | المادة 38 | ص. 14</span>
+          </div>
+        </div>
+        <div class="chat-msg user">
+          <div class="chat-bubble">What are the requirements for a Data Protection Officer?</div>
+        </div>
+        <div class="chat-msg bot">
+          <div class="chat-bubble">
+            Based on the <strong>Data Protection Officer Registration Instructions</strong>, a DPO must have: professional certification in data protection, minimum 3 years experience in information security, and must be registered with the Personal Data Protection Council...
+          </div>
+          <div>
+            <span class="chat-source">📄 تعليمات سجل مسؤولي حماية البيانات | ص. 3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">28</div>
+    <div class="stat-label">Policy Documents Ingested</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">100%</div>
+    <div class="stat-label">Offline — Zero Cloud Dependency</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">6</div>
+    <div class="stat-label">Employee Role Profiles</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">2</div>
+    <div class="stat-label">Languages (AR + EN)</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-inner">
+    <span class="section-tag">Why Safwa AI</span>
+    <h2 class="section-title">Built for banks, not browsers</h2>
+    <p class="section-desc">Every feature was designed around Safwa Bank's strict data sovereignty, compliance, and usability requirements.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">100% Local Processing</div>
+        <div class="feature-desc">All AI inference runs on-device via Ollama. No prompts, no documents, no answers ever touch an external server or cloud API.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📚</div>
+        <div class="feature-title">28 Arabic Policy Documents</div>
+        <div class="feature-desc">Ingests all official regulations from Jordan's Ministry of Digital Economy — automatically chunked, embedded, and indexed for instant retrieval.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Source Citations Every Time</div>
+        <div class="feature-desc">Every answer includes the exact document name, page estimate, and section — so employees can verify directly from the source.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👤</div>
+        <div class="feature-title">Role-Aware Responses</div>
+        <div class="feature-desc">Adapts answer depth and terminology based on the employee's role: IT, Business, Management, HR, Legal, or General Staff.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Bilingual (AR + EN)</div>
+        <div class="feature-desc">Ask in Arabic and receive an Arabic answer. Ask in English and receive an English answer. Automatically detected — no language setting needed.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🚫</div>
+        <div class="feature-title">No Hallucinations</div>
+        <div class="feature-desc">Strictly document-grounded. The system refuses to answer questions that fall outside the ingested policy corpus — no guessing allowed.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🕐</div>
+        <div class="feature-title">Full Conversation History</div>
+        <div class="feature-desc">All chat sessions stored locally in SQLite. Employees can review past queries and answers at any time without re-asking.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚙️</div>
+        <div class="feature-title">Admin Ingestion Panel</div>
+        <div class="feature-desc">Re-ingest documents anytime via a hidden admin panel (Ctrl+Shift+A). Live progress indicator and LLM health check included.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section id="tech">
+  <div class="section-inner">
+    <span class="section-tag">Technology</span>
+    <h2 class="section-title">The stack powering it</h2>
+    <p class="section-desc">Carefully selected open-source tools that work completely offline with no vendor lock-in.</p>
+
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="tech-icon">🧠</div>
+        <div>
+          <div class="tech-name">Mistral 7B</div>
+          <div class="tech-role">LLM via Ollama</div>
+        </div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🔢</div>
+        <div>
+          <div class="tech-name">Sentence Transformers</div>
+          <div class="tech-role">Multilingual Embeddings</div>
+        </div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🗃️</div>
+        <div>
+          <div class="tech-name">ChromaDB</div>
+          <div class="tech-role">Local Vector Store</div>
+        </div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🐍</div>
+        <div>
+          <div class="tech-name">Python + Flask</div>
+          <div class="tech-role">Backend API Server</div>
+        </div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🎨</div>
+        <div>
+          <div class="tech-name">Vanilla HTML/CSS/JS</div>
+          <div class="tech-role">Glassmorphism Frontend</div>
+        </div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🗄️</div>
+        <div>
+          <div class="tech-name">SQLite</div>
+          <div class="tech-role">User & History DB</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SETUP -->
+<section id="setup">
+  <div class="section-inner">
+    <span class="section-tag">Quick Start</span>
+    <h2 class="section-title">Up and running in 5 steps</h2>
+    <p class="section-desc">First-time setup takes ~15 minutes (mostly download time). After that, launches instantly.</p>
+
+    <div class="steps-list">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Install Ollama (Local LLM Server)</div>
+          <div class="step-desc">Download from <a href="https://ollama.com" style="color:var(--gold)">ollama.com</a> or use winget:</div>
+          <div class="code-block">winget install Ollama.Ollama</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Pull the Mistral 7B Model (~4.4 GB, one-time)</div>
+          <div class="code-block">ollama pull mistral</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Clone the repository & install dependencies</div>
+          <div class="code-block">git clone https://github.com/RaneemSadeh/safwa-ai-assistant.git<br/>cd safwa-ai-assistant<br/>pip install -r requirements.txt</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Add your `.docx` policy files to <code style="color:var(--gold)">Data/</code> then ingest</div>
+          <div class="code-block">python src/ingest.py</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">Start the application</div>
+          <div class="code-block">python app.py</div>
+          <div class="step-desc" style="margin-top:10px">Open your browser at <strong style="color:var(--gold)">http://localhost:5000</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section id="security">
+  <div class="section-inner">
+    <span class="section-tag">Data Security</span>
+    <h2 class="section-title">Zero trust, zero cloud</h2>
+    <p class="section-desc">Designed from day one for banking-grade data sovereignty. Nothing leaves your machine.</p>
+
+    <div class="security-box">
+      <div>
+        <h3 style="font-size:1.4rem;font-weight:700;margin-bottom:16px;">What stays local</h3>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--gold);font-size:18px;margin-top:2px">✓</span>
+            <div><strong>Policy documents</strong><br/><span style="font-size:13px;color:var(--muted)">All 28 .docx files are stored and processed locally only</span></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--gold);font-size:18px;margin-top:2px">✓</span>
+            <div><strong>Vector embeddings</strong><br/><span style="font-size:13px;color:var(--muted)">ChromaDB index written to local disk, never synced</span></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--gold);font-size:18px;margin-top:2px">✓</span>
+            <div><strong>LLM inference</strong><br/><span style="font-size:13px;color:var(--muted)">Mistral 7B runs via Ollama entirely on your hardware</span></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--gold);font-size:18px;margin-top:2px">✓</span>
+            <div><strong>User data & chat history</strong><br/><span style="font-size:13px;color:var(--muted)">SQLite database stored locally, no cloud backup</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="security-diagram">
+        <div class="diagram-highlight">┌─── LOCAL MACHINE ──────────────────┐</div>
+        │                                    │<br/>
+        │  User → Flask App → RAG Engine     │<br/>
+        │              │            │        │<br/>
+        │              │      <span class="diagram-highlight">ChromaDB</span>      │<br/>
+        │              │      (vectors)      │<br/>
+        │              │            │        │<br/>
+        │              │    <span class="diagram-highlight">Ollama/Mistral</span>  │<br/>
+        │              │      (LLM)          │<br/>
+        │              ↓                     │<br/>
+        │          Response                  │<br/>
+        │                                    │<br/>
+        <div class="diagram-highlight">│  ✗ NO external API calls           │</div>
+        <div class="diagram-highlight">│  ✗ NO data leaves the machine      │</div>
+        <div class="diagram-highlight">└────────────────────────────────────┘</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-copy">
+      Built by <strong style="color:var(--gold)">Raneem Sadeh</strong> · Safwa Bank Internship 2026
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/RaneemSadeh/safwa-ai-assistant" target="_blank">GitHub</a>
+      <a href="#features">Features</a>
+      <a href="#setup">Setup</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

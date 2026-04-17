@@ -1,0 +1,32 @@
+# ─── Secrets & Config ───────────────────────
+.env
+*.env
+
+# ─── Database & Vector Store ────────────────
+safwa_users.db
+chroma_db/
+ingest_status.json
+
+# ─── Large Data Files ────────────────────────
+Data/
+*.docx
+
+# ─── Python ──────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# ─── OS & Editor ─────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
