@@ -6,6 +6,8 @@ A **fully local, offline RAG-powered chatbot** for Safwa Bank employees, providi
 
 ---
 
+https://raneemsadeh.github.io/safwa-ai-assistant/
+
 ##  Features
 
 | Feature | Description |
