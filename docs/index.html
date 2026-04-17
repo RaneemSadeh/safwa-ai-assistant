@@ -94,13 +94,17 @@
       width: 38px;
       height: 38px;
       border-radius: 10px;
-      background: linear-gradient(135deg, var(--gold), #a07810);
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--navy);
+      background: transparent;
+    }
+
+    .nav-logo-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
 
     .nav-logo-text {
@@ -759,7 +763,7 @@
   <!-- NAV -->
   <nav>
     <div class="nav-logo">
-      <div class="nav-logo-icon">S</div>
+      <div class="nav-logo-icon"><img src="logo.png" alt="Safwa Bank Logo" /></div>
       <div>
         <div class="nav-logo-text">Safwa AI</div>
         <div class="nav-logo-sub">RAG Policy Assistant</div>
@@ -780,7 +784,7 @@
   <div class="hero">
     <div>
       <div class="hero-badge"><span></span> 100% Local & Offline — No Data Leaves the Machine</div>
-      <h1>Safwa Bank<br />AI Policy Assistant</h1>
+      <h1>Safwa Bank<br />Policy Assistant</h1>
       <p class="hero-sub">
         A fully local RAG-powered chatbot that gives Safwa Bank employees accurate, role-aware answers to policy and
         compliance questions — with full document citations.
