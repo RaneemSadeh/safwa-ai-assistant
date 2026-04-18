@@ -1,8 +1,8 @@
-#  مساعد صفوة — Safwa Bank AI Policy Chatbot
+#  Safwa Bank AI Policy Chatbot
 
-A **fully local, offline RAG-powered chatbot** for Safwa Bank employees, providing accurate, role-aware answers to questions about bank policies and cybersecurity regulations — with full source citations.
+A **fully local, offline RAG-powered chatbot** for Safwa Bank employees, providing accurate, role-aware answers to questions about bank policies and cybersecurity regulations with full source citations.
 
-> ** Data Security:** All processing happens 100% locally on the machine. No data is sent to any external API or cloud service. This complies with Safwa Bank's strict data sovereignty requirements.
+> Data Security: All processing happens 100% locally on the machine. No data is sent to any external API or cloud service. This complies with Safwa Bank's strict data sovereignty requirements.
 
 ---
 
